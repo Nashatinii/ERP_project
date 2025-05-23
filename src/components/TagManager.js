@@ -11,15 +11,27 @@ export default function TagManager() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const storedFiles = JSON.parse(localStorage.getItem("files") || "[]");
-    setDocuments(storedFiles);
+    const loadFiles = () => {
+      const storedFiles = JSON.parse(localStorage.getItem("files") || "[]");
+      setDocuments(storedFiles);
+    };
+
+    loadFiles(); // Initial load
+
+    const handleFileAdded = () => {
+      loadFiles(); // Reload on new file upload
+    };
+
+    window.addEventListener("file-added", handleFileAdded);
+
+    return () => {
+      window.removeEventListener("file-added", handleFileAdded);
+    };
   }, []);
 
   const updateStorage = (updatedDocs) => {
     localStorage.setItem("files", JSON.stringify(updatedDocs));
     setDocuments(updatedDocs);
-
-    // حدث إعلام التغيير
     window.dispatchEvent(new Event("data-changed"));
   };
 
@@ -148,18 +160,18 @@ export default function TagManager() {
                 .filter((doc) => doc.tags?.length)
                 .map((doc) => (
                   <tr key={doc.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 p-2">{doc.title}</td>
+                    <td className="border border-gray-300 p-2"><strong>{doc.title}</strong></td>
                     <td className="border border-gray-300 p-2">{doc.id}</td>
                     <td className="border border-gray-300 p-2">
                       <div className="flex flex-wrap gap-2">
-                        {doc.tags.map((t, idx) => (
+                     {doc.tags.map((t, idx) => (
                           <span
                             key={idx}
                             className="flex items-center gap-2 bg-green-100 px-3 py-1 rounded-full text-sm"
                           >
-                            {editingTag?.docId === doc.id &&
+                           <strong>TAGS:</strong>  {editingTag?.docId === doc.id &&
                             editingTag?.currentTag === t ? (
-                              <>
+                              <> 
                                 <input
                                   ref={inputRef}
                                   className="border px-2 py-1 rounded text-sm"
